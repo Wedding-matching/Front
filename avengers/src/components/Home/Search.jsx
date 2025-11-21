@@ -1,14 +1,31 @@
 import styled from "styled-components";
 import { useState } from "react";
+import { useAskQuery } from "../../api/search";
+
 import searchIcon from "../../assets/searchIcon.svg";
 import SearchBtnImg from "../../assets/SearchBtn.svg";
+import SearchHistory from "./SearchHistory";
 
 const Search = ({ onSearch }) => {
-    const [input, setInput] = useState("");
+    const { post } = useAskQuery(); //useAskQuery()를 실행하면 post-> 실제 api 요청 함수, loading-> 요청 중인지, error->에러가 발생했는지 상태를 제공
+    const [question, setQuestion] = useState("");
+    
 
-    const handleSearch = () => {
-        // const resultCount = getSearchResultCount(input);
-        onSearch(input);   //Home에게 검색어 전달
+    const handleSearch = async() => { //버튼 눌렀을 때
+        try{ //post()안에 body를 넣어서 호출하면
+            //axios.post("/ask", body)형태로 자동 호출됨
+            const data = await post({
+                query: question, //사용자 질문
+                target_table: "wellcome1st",
+            });
+            console.log("API 응답 결과:", data);
+
+            //부모(home)에게 데이터 전달 -> result가 받음
+            onSearch(data);   //Home에게 검색어 전달
+
+        }catch(err){
+            console.log("API 요청 중 오류 :", err);
+        }
     };
 
     return (
@@ -20,8 +37,8 @@ const Search = ({ onSearch }) => {
                 <SearchInput
                     type="text"
                     placeholder="ex) 서울에 사는 남자"
-                    value={input}
-                    onChange={(e)=>setInput(e.target.value)}
+                    value={question}
+                    onChange={(e)=>setQuestion(e.target.value)}
                 />
                 <SearchBtn onClick={handleSearch}>
                     <img src={SearchBtnImg}/>검색
@@ -29,12 +46,12 @@ const Search = ({ onSearch }) => {
             </SearchInputWrap>
 
             <SearchExWrap>
-                <SearchEx onClick={() => setInput("서울에 사는 남성")}>서울에 사는 남성</SearchEx>
-                <SearchEx onClick={() => setInput("2000년생 서울 거주자")}>2000년생 서울 거주자</SearchEx>
-                <SearchEx onClick={() => setInput("20대 흡연자")}>20대 흡연자</SearchEx>
-                <SearchEx onClick={() => setInput("차량을 보유한 여성")}>차량을 보유한 여성</SearchEx>
-                <SearchEx onClick={() => setInput("kt 이용자")}>kt 이용자</SearchEx>
-                <SearchEx onClick={() => setInput("50대 미혼")}>50대 미혼</SearchEx>
+                <SearchEx onClick={() => setQuestion("서울에 사는 남성")}>서울에 사는 남성</SearchEx>
+                <SearchEx onClick={() => setQuestion("2000년생 서울 거주자")}>2000년생 서울 거주자</SearchEx>
+                <SearchEx onClick={() => setQuestion("20대 흡연자")}>20대 흡연자</SearchEx>
+                <SearchEx onClick={() => setQuestion("차량을 보유한 여성")}>차량을 보유한 여성</SearchEx>
+                <SearchEx onClick={() => setQuestion("kt 이용자")}>kt 이용자</SearchEx>
+                <SearchEx onClick={() => setQuestion("50대 미혼")}>50대 미혼</SearchEx>
             </SearchExWrap>
 
         </SearchWrap>

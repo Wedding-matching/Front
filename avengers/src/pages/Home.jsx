@@ -6,7 +6,8 @@ import SearchHistory from "../components/Home/SearchHistory";
 import Result from "../components/Home/Result";
 
 const Home = () => {    
-    const [query, setQuery] = useState(""); //검색어
+    // const [query, setQuery] = useState(""); //검색어
+    const [searchResult, setSearchResult] = useState(null); //api결과 저장
     const [resultCount, setResultCount] = useState(0); //검색 결과 개수
 
     return (
@@ -15,12 +16,12 @@ const Home = () => {
                 <Title />
             </TitleCell>
 
-            {/*검색어 전달*/}
-            <Search onSearch={(q) => setQuery(q)}/> 
+            {/*Search가 API 결과 (data)를 넘겨주면 Home이 저장*/}
+            <Search onSearch={setSearchResult}/> 
             {/*lastestQuery - 가장 최근 검색한 검색어, lastestCount - 검색 결과 개수*/}
-            <SearchHistory lastQuery={query} lastestCount={resultCount}/>
+            <SearchHistory lastQuery={searchResult?.clean_query} lastestCount={resultCount}/>
             <ResultCell>
-                    <Result query={query} onCountUpdate={setResultCount}/>
+                    <Result data={searchResult} query={searchResult?.clean_query || ""} onCountUpdate={setResultCount}/>
             </ResultCell>
         </HomeWrap>
     )

@@ -1,67 +1,38 @@
 import styled from "styled-components";
 import FileBlue from "../../assets/FileBlue.svg";
-import wellcome1st from "../../moidata/wellcome1st";
+// import wellcome1st from "../../moidata/wellcome1st";
 import download from "../../assets/download.svg";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
-const SearchDetail = ({ query, onCountUpdate }) => {
-
-    // 1) 자연어 파싱
-    const gender =
-        query.includes("남") ? "남" :
-        query.includes("여") ? "여" : null;
-
-    const location =
-        query.includes("서울") ? "서울" :
-        query.includes("부산") ? "부산" :
-        query.includes("경기") ? "경기" : null;
-
-    // 2) 데이터 필터링
-    let results = wellcome1st;
-    if (gender) results = results.filter(r => r["성별"] === gender);
-    if (location) results = results.filter(r => r["거주지역"] === location);
-
-    useEffect(()=>{ //결과 개수를 home으로 전달
-        onCountUpdate(results.length);
-    }, [results.length]);
-    
-    // 3) 선택된 row 저장
+const SearchDetail = ({ results, query }) => {
+    //클릭해서 선택한 row저장
     const [selectedRows, setSelectedRows] = useState([]);
 
-    // 행 클릭해서 선택/해제
-    const toggleRow = (row) => {
-        const isSelected = selectedRows.includes(row);
-        if (isSelected) {
+    const toggleRow = (row) => { //행 클릭시 선택/해제
+        const exists = selectedRows.includes(row);
+        if(exists){
             setSelectedRows(selectedRows.filter(r => r !== row));
-        } else {
+        }else {
             setSelectedRows([...selectedRows, row]);
         }
+
     };
 
     // 4) TXT 다운로드 (선택된 row만)
     const downloadTXT = () => {
-        const target = selectedRows.length > 0 ? selectedRows : [];
-
-        if (target.length === 0) {
-            alert("선택된 항목이 없습니다.");
-            return;
-        }
+        const target = selectedRows.length > 0 ? selectedRows : results;
 
         let text = "";
-
         target.forEach(item => {
-            text += `사용자 ID: ${item["사용자 ID"]}\n`;
-            text += `성별: ${item["성별"]}\n`;
-            text += `출생년도: ${item["출생년도"]}\n`;
-            text += `거주지역: ${item["거주지역"]}\n`;
-            text += `세부 거주지역: ${item["세부 거주지역"]}\n`;
-            text += `-----------------------------\n`;
+            text += `\nID: ${item.id}\n`;
+            text += `${item.info_text}\n`;
+            text += `\n--------------------------------\n`;
         });
 
         const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = "search_result.txt";
+        link.download = `${query || "result"}_result.txt`;
         link.click();
     };
 
@@ -94,10 +65,11 @@ const SearchDetail = ({ query, onCountUpdate }) => {
                     <thead>
                         <tr>
                             <th>사용자 ID</th>
-                            <th>성별</th>
+                            {/* <th>성별</th>
                             <th>출생년도</th>
                             <th>거주지역</th>
-                            <th>세부 거주지역</th>
+                            <th>세부 거주지역</th> */}
+                            <th>데이터</th>
                         </tr>
                     </thead>
 
@@ -114,11 +86,12 @@ const SearchDetail = ({ query, onCountUpdate }) => {
                                         cursor: "pointer"
                                     }}
                                 >
-                                    <td>{row["사용자 ID"]}</td>
-                                    <td>{row["성별"]}</td>
+                                    <td>{row.id}</td>
+                                    {/* <td>{row["성별"]}</td>
                                     <td>{row["출생년도"]}</td>
                                     <td>{row["거주지역"]}</td>
-                                    <td>{row["세부 거주지역"]}</td>
+                                    <td>{row["세부 거주지역"]}</td> */}
+                                    <td>{row.info_text}</td>
                                 </tr>
                             );
                         })}

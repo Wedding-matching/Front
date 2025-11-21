@@ -1,22 +1,27 @@
 import styled from "styled-components";
 import resultIcon2 from "../../assets/resultIcon2.svg";
 import SearchDetail from "./SearchDetail";
+import { useEffect } from "react";
 
-const Result = ({ query, onCountUpdate }) => {
-    const noQuery = !query || query.trim() === "";
+const Result = ({ data, query, onCountUpdate }) => {
+    const noData = !data || !Array.isArray(data.result);
+
+    useEffect(()=>{
+        if(!noData){ //검색 결과 개수는 data.result.length로 업데이트
+        onCountUpdate(data.result.length);
+        }
+    }, [data, noData, onCountUpdate]);
 
     return (
         <ResultWrap>
             <ResultTitle><img src={resultIcon2}/>검색 결과</ResultTitle>
 
 
-            {noQuery ? (
+            {noData ? (
                 <ResultDetail>검색된 결과가 없습니다.</ResultDetail>
             ) : (
-                <SearchDetail 
-                    query={query} 
-                    onCountUpdate={onCountUpdate}
-                />
+                //api에서 받은 result 배열을 searchdetail에 전달
+                <SearchDetail results={data.result} query={query}/>
             )}
         </ResultWrap>
     );
