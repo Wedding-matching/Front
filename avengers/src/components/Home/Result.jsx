@@ -1,15 +1,26 @@
 import styled from "styled-components";
-import SearchIcon from "../../assets/SearchIcon.svg";
-const Result = () => {
+import resultIcon2 from "../../assets/resultIcon2.svg";
+import SearchDetail from "./SearchDetail";
+
+const Result = ({ query, onCountUpdate }) => {
+    const noQuery = !query || query.trim() === "";
+
     return (
         <ResultWrap>
-            <ResultTitle><img src={SearchIcon}/>검색 결과</ResultTitle>
-            <ResultDetail>
-                검색된 결과가 없습니다.
-            </ResultDetail>
+            <ResultTitle><img src={resultIcon2}/>검색 결과</ResultTitle>
+
+
+            {noQuery ? (
+                <ResultDetail>검색된 결과가 없습니다.</ResultDetail>
+            ) : (
+                <SearchDetail 
+                    query={query} 
+                    onCountUpdate={onCountUpdate}
+                />
+            )}
         </ResultWrap>
     );
-}
+};
 
 export default Result;
 
@@ -18,32 +29,32 @@ const ResultWrap = styled.div`
     border: 1px solid #0000001A;
     background: #FFFFFF;
     border-radius: 14px;
-
+    min-height: 568px;
 `;
 
 const ResultTitle = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
     img{
-            width: 20px;
-            height: 20px;
-        }
+        width: 20px;
+        height: 20px;
+    }
 
     font-size: 20px;
     font-weight: 500;
-    font-family: 'Pretendard';
-
-    gap: 8px;
-    display: flex;
 `;
 
 const ResultDetail = styled.div`
+    flex: 1;
+
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100%;
     
-    font-size: 20px;
-    font-weight: 400;
-    font-family: 'Pretendard';
-    color: #717182;
+    margin-top: 229px;
 
+
+    font-size: 20px;
+    color: #717182;
 `;

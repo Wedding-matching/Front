@@ -5,9 +5,9 @@ const Title = () => {
     return (
         <>
             <TitleWrap>
-                <RoundTiTle><img src={Round}/>AI 기반 자연어 처리</RoundTiTle>
+                <RoundTiTle><img src={Round}/>AI 기반 데이터 관리</RoundTiTle>
                 <SubTitle>자연어로 소통하는 AI 플랫폼</SubTitle>
-                <TitleDescription>JSON 파일을 선택하고 자연어로 데이터를 검색하세요.</TitleDescription>
+                <TitleDescription>원하는 조건의 데이터를 검색 후 저장해보세요.</TitleDescription>
             </TitleWrap>
         </>
     )

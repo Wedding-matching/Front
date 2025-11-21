@@ -1,32 +1,45 @@
 import styled from "styled-components";
-import SearchIcon from "../../assets/SearchIcon.svg";
+import { useState } from "react";
+import searchIcon from "../../assets/searchIcon.svg";
 import SearchBtnImg from "../../assets/SearchBtn.svg";
 
-const Search = () => {
+const Search = ({ onSearch }) => {
+    const [input, setInput] = useState("");
+
+    const handleSearch = () => {
+        // const resultCount = getSearchResultCount(input);
+        onSearch(input);   //Home에게 검색어 전달
+    };
+
     return (
-    <>
         <SearchWrap>
-            <SearchTitle><img src={SearchIcon}/>자연어 검색</SearchTitle>
+            <SearchTitle><img src={searchIcon}/>자연어 검색</SearchTitle>
             <SearchDescription>자연스러운 언어로 데이터를 검색하세요.</SearchDescription>
-            
+
             <SearchInputWrap>
-                <SearchInput type="text" placeholder="ex) '서울에 사는 흡연자를 찾아줘'"/>
-                <SearchBtn><img src={SearchBtnImg}/>검색</SearchBtn>
+                <SearchInput
+                    type="text"
+                    placeholder="ex) 서울에 사는 남자"
+                    value={input}
+                    onChange={(e)=>setInput(e.target.value)}
+                />
+                <SearchBtn onClick={handleSearch}>
+                    <img src={SearchBtnImg}/>검색
+                </SearchBtn>
             </SearchInputWrap>
 
-            
             <SearchExWrap>
-                <SearchEx>2000년생 서울 거주자</SearchEx>
-                <SearchEx>20대 흡연자</SearchEx>
-                <SearchEx>30대 남성</SearchEx>
-                <SearchEx>차량을 보유한 여성</SearchEx>
-                <SearchEx>kt 이용자</SearchEx>
-                <SearchEx>50대 미혼</SearchEx>
+                <SearchEx onClick={() => setInput("서울에 사는 남성")}>서울에 사는 남성</SearchEx>
+                <SearchEx onClick={() => setInput("2000년생 서울 거주자")}>2000년생 서울 거주자</SearchEx>
+                <SearchEx onClick={() => setInput("20대 흡연자")}>20대 흡연자</SearchEx>
+                <SearchEx onClick={() => setInput("차량을 보유한 여성")}>차량을 보유한 여성</SearchEx>
+                <SearchEx onClick={() => setInput("kt 이용자")}>kt 이용자</SearchEx>
+                <SearchEx onClick={() => setInput("50대 미혼")}>50대 미혼</SearchEx>
             </SearchExWrap>
+
         </SearchWrap>
-    </>
-    )
-}
+    );
+};
 
 export default Search;
 
@@ -52,18 +65,13 @@ const SearchTitle = styled.div`
 
     font-size: 20px;
     font-weight: 500;
-    font-family: 'Pretendard';
-
     margin-bottom: 8px;
 `;
 
 const SearchDescription = styled.div`
     font-size: 20px;
     font-weight: 400;
-    font-family: 'Pretendard';
-
     color: #717182;
-
     margin-bottom: 15.67px;
     margin-left: 35px;
 `;
@@ -71,19 +79,15 @@ const SearchDescription = styled.div`
 const SearchInputWrap = styled.div`
     display: flex;
     gap: 21.23px;
-
     margin-bottom: 20.67px;
     margin-left: 35px;
-
 `;
 
 const SearchInput = styled.input`
     width: 100%;
     height: 65px;
-    color: #717182;
+    color: #000;
     font-size: 20px;
-    font-weight: 400;
-    font-family: 'Pretendard';
     padding: 12px 16px;
     background: #F3F3F5;
     border: 1px solid #00000000;
@@ -107,10 +111,8 @@ const SearchBtn = styled.button`
     padding : 15px 10px 14px 12px;
     color: #FFFFFF;
     font-size: 20px;
-    font-weight: 500;
-    font-family: 'Pretendard';
     white-space: nowrap;
-`;  
+`;
 
 const SearchExTitle = styled.div`
     font-size: 20px;
