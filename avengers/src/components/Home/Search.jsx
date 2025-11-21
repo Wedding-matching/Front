@@ -9,7 +9,7 @@ import SearchHistory from "./SearchHistory";
 const Search = ({ onSearch }) => {
     const { post } = useAskQuery(); //useAskQuery()를 실행하면 post-> 실제 api 요청 함수, loading-> 요청 중인지, error->에러가 발생했는지 상태를 제공
     const [question, setQuestion] = useState("");
-    
+
 
     const handleSearch = async() => { //버튼 눌렀을 때
         try{ //post()안에 body를 넣어서 호출하면
@@ -21,7 +21,7 @@ const Search = ({ onSearch }) => {
             console.log("API 응답 결과:", data);
 
             //부모(home)에게 데이터 전달 -> result가 받음
-            onSearch(data);   //Home에게 검색어 전달
+            onSearch(data, question);   //Home에게 검색어 전달
 
         }catch(err){
             console.log("API 요청 중 오류 :", err);

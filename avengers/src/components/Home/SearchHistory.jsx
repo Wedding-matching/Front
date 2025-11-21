@@ -4,33 +4,60 @@ import HistoryIcon from "../../assets/HistoryIcon.svg";
 import HistoryTimeIcon  from "../../assets/HistoryTimeIcon.svg";
 import Delete from "../../assets/Delete.svg";
 
-const SearchHistory = ({latestQuery, lastestcount}) => {
-    
+//검색어 시간
+const getTimeLabel = (timestamp) => {
+    const now = new Date();
+    const past = new Date(timestamp);
+
+    const diffMs = now - past;
+    const diffMinutes = Math.floor(diffMs / 1000 / 60);
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMinutes < 60) {
+        return `${diffMinutes}분 전`;
+    }
+
+    if (diffHours < 24) {
+        return `${diffHours}시간 전`;
+    }
+
+    const month = past.getMonth() + 1;
+    const date = past.getDate();
+
+    return `${month < 10 ? "0" + month : month}.${date < 10 ? "0" + date : date}일`;
+};
+
+const SearchHistory = ({history, onDelete}) => {
     return (
         <SearchHistoryWrap>
             <SH_Title><img src={History} />Search History</SH_Title>
             <SH_Desc>최근 검색 기록</SH_Desc>
 
-            <SH_ListWrap>
-                <SH_ListTitleWrap>
-                    <img src={HistoryIcon} />
-                    <SH_ListTitle>서울에 사는 남자</SH_ListTitle>
-                </SH_ListTitleWrap>
+            {history.map(item => (
+                <SH_ListWrap key={item.id}>
+                    <SH_ListTitleWrap>
+                        <img src={HistoryIcon} />
+                        {/*검색어*/}
+                        <SH_ListTitle>{item.text}</SH_ListTitle>
+                    </SH_ListTitleWrap>
 
-                <SH_ListItemWrap>
-                    <SH_ListDetailWrap>
-                        <SH_ListTimeWrap>
-                            <img src={HistoryTimeIcon} /> 
-                            <SH_ListTime>5분전</SH_ListTime>
-                        </SH_ListTimeWrap>
-                        <p>{lastestcount}</p>
-                    </SH_ListDetailWrap>
+                    <SH_ListItemWrap>
+                        <SH_ListDetailWrap>
+                            <SH_ListTimeWrap>
+                                <img src={HistoryTimeIcon} /> 
+                                {/*검색 시간*/}
+                                <SH_ListTime>{getTimeLabel(item.timestamp)}</SH_ListTime>
+                            </SH_ListTimeWrap>
+                            <p>{item.count}</p>
+                        </SH_ListDetailWrap>
 
-                    <SH_ListDelete>
-                        <img src={Delete}/>
-                    </SH_ListDelete>
-                </SH_ListItemWrap>
-            </SH_ListWrap>
+                        <SH_ListDelete>
+                            <img src={Delete} onClick={()=>onDelete(item.id)}/>
+                        </SH_ListDelete>
+                    </SH_ListItemWrap>
+                </SH_ListWrap>
+                ))}                
         </SearchHistoryWrap>
     );
         
