@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Title from "../components/Home/Title";
 import Search from "../components/Home/Search";
 import SearchHistory from "../components/Home/SearchHistory";
@@ -10,6 +10,34 @@ const Home = () => {
     const [searchResult, setSearchResult] = useState(null); //api결과 저장
     const [resultCount, setResultCount] = useState(0); //검색 결과 개수
 
+    //검색 기록 리스트 -> localStorage에서 초기 기록 불러오기
+    const [historyList, setHisrtoryList] = useState(()=>{
+        const saved = localStorage.getItem("searchHistory");
+        return saved ? JSON.parse(saved) : [];
+    });
+
+    useEffect(()=>{ //historyList 바뀔 때마다 localStorage에 저장
+        localStorage.setItem("searchHistory", JSON.stringify(historyList));
+    }, [historyList]);
+
+    const handleSearch = (data, query) => { //검색 실행 -> 기록 추가
+        setSearchResult(data);
+
+        setHisrtoryList(prev => [
+            {
+                id: Date.now(),
+                text: query,
+                timestamp: Date.now(),
+                count: data.result.length,
+            },
+            ...prev //기존 기록 유지 + 위에 추가
+        ]);
+    };
+
+    const handleDeleteHistory = (id) => {
+        setHisrtoryList(prev => prev.filter(item => item.id !== id));
+    };
+
     return (
         <HomeWrap>
             <TitleCell>
@@ -17,9 +45,9 @@ const Home = () => {
             </TitleCell>
 
             {/*Search가 API 결과 (data)를 넘겨주면 Home이 저장*/}
-            <Search onSearch={setSearchResult}/> 
+            <Search onSearch={handleSearch}/> 
             {/*lastestQuery - 가장 최근 검색한 검색어, lastestCount - 검색 결과 개수*/}
-            <SearchHistory lastQuery={searchResult?.clean_query} lastestCount={resultCount}/>
+            <SearchHistory history={historyList} onDelete={handleDeleteHistory}/>
             <ResultCell>
                     <Result data={searchResult} query={searchResult?.clean_query || ""} onCountUpdate={setResultCount}/>
             </ResultCell>
