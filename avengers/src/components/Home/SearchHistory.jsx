@@ -49,7 +49,7 @@ const SearchHistory = ({history, onDelete}) => {
                                 {/*검색 시간*/}
                                 <SH_ListTime>{getTimeLabel(item.timestamp)}</SH_ListTime>
                             </SH_ListTimeWrap>
-                            <p>{item.count}</p>
+                            <SH_ListItemCount>{item.count}</SH_ListItemCount>
                         </SH_ListDetailWrap>
 
                         <SH_ListDelete>
@@ -110,8 +110,11 @@ const SH_ListWrap = styled.div`
     margin-left: 28px;
     flex-direction: column;
     gap: 2.47px;
+    margin-bottom: 8px;
     border: 1px solid #E5E7EB;
     border-radius: 10px;
+
+    overflow-y: auto; //세로 스크롤
 `
 const SH_ListTitleWrap = styled.div`
     display: flex;
@@ -166,3 +169,17 @@ const SH_ListTime = styled.div`
     font-weight: 400;
     color:#6A7282;
 `;
+
+const SH_ListItemCount = styled.div`
+    font-size: 9px;
+    font-weight: 500;
+    color:#7B7B86;
+    width: 19px;
+    height: 19px;
+    background: #ECEEF2;
+    border-radius: 7px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`
