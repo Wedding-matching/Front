@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useState } from "react";
 import { useAskQuery } from "../../api/search";
 
-import searchIcon from "../../assets/searchIcon.svg";
+import SearchIcon from "../../assets/SearchIcon.svg";
 import SearchBtnImg from "../../assets/SearchBtn.svg";
 import SearchHistory from "./SearchHistory";
 
@@ -30,7 +30,7 @@ const Search = ({ onSearch }) => {
 
     return (
         <SearchWrap>
-            <SearchTitle><img src={searchIcon}/>자연어 검색</SearchTitle>
+            <SearchTitle><img src={SearchIcon}/>자연어 검색</SearchTitle>
             <SearchDescription>자연스러운 언어로 데이터를 검색하세요.</SearchDescription>
 
             <SearchInputWrap>
