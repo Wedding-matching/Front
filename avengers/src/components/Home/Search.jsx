@@ -18,10 +18,10 @@ const Search = ({ onSearch }) => {
                 query: question, //사용자 질문
                 target_table: "wellcome1st",
             });
-            console.log("API 응답 결과:", data);
-
             //부모(home)에게 데이터 전달 -> result가 받음
             onSearch(data, question);   //Home에게 검색어 전달
+
+            console.log("API 응답 결과:", data);
 
         }catch(err){
             console.log("API 요청 중 오류 :", err);
@@ -51,7 +51,7 @@ const Search = ({ onSearch }) => {
                 <SearchEx onClick={() => setQuestion("20대 흡연자")}>20대 흡연자</SearchEx>
                 <SearchEx onClick={() => setQuestion("차량을 보유한 여성")}>차량을 보유한 여성</SearchEx>
                 <SearchEx onClick={() => setQuestion("kt 이용자")}>kt 이용자</SearchEx>
-                <SearchEx onClick={() => setQuestion("50대 미혼")}>50대 미혼</SearchEx>
+                <SearchEx onClick={() => setQuestion("고등학교 이하 학력 중 핸드폰이 아이폰인 사람")}>고등학교 이하 학력 중 핸드폰이 아이폰인 사람</SearchEx>
             </SearchExWrap>
 
         </SearchWrap>

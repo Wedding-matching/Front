@@ -3,6 +3,7 @@ import FileBlue from "../../assets/FileBlue.svg";
 // import wellcome1st from "../../moidata/wellcome1st";
 import download from "../../assets/download.svg";
 import { useState } from "react";
+import BubbleChart from "../Chart/BubbleChart";
 
 const SearchDetail = ({ results, query }) => {
     //클릭해서 선택한 row저장
@@ -45,12 +46,13 @@ const SearchDetail = ({ results, query }) => {
 
     return (
         <SearchDetailWrap>
+            <BubbleChart />
 
             <SearchDetailHead>
                 <LeftWrap>
                     <img src={FileBlue}/>
                     <SD_H_Detail>
-                        <SearchTitle>wellcome1st.js</SearchTitle>
+                        <SearchTitle>{query}</SearchTitle>
                         <SearchNum>{results.length}개 일치 항목</SearchNum>
                     </SD_H_Detail>
                 </LeftWrap>
