@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 const RoundChart = () => {
-  const radius = 15; //원 반지름
+  const radius = 30; //원 반지름
   const circumference = 2 * Math.PI * radius; //원 둘레
   const percent = 7; //표시할 퍼센트 
   const progress = percent / 100; //0~1 값
@@ -11,20 +11,20 @@ const RoundChart = () => {
         <svg viewBox="0 0 200 200">
         <circle
             cx="100" //x 중심 좌표
-            cy="100" //y 중심 좌표
+            cy="80" //y 중심 좌표
             r={radius} //반지름
             fill="none" //내부 채우기
             stroke="#E2F3FB" //배경 선 색
-            strokeWidth="5" //선 두께
+            strokeWidth="15" //선 두께
         />
 
         <AnimatedCircle
             cx="100"
-            cy="100"
+            cy="80"
             r={radius}
             fill="none"
             stroke="#44bed5" //진행될 색상
-            strokeWidth="5"
+            strokeWidth="15"
             strokeDasharray={`${circumference * progress} ${
                             circumference * (1 - progress)
                         }`}         
@@ -34,9 +34,9 @@ const RoundChart = () => {
 
         <text //중앙 텍스트
             x="100"
-            y="103"
+            y="83"
             textAnchor="middle"
-            fontSize="7px"
+            fontSize="10px"
             fill="#44bed5"
             fontWeight="600"
         >

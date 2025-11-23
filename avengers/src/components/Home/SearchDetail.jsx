@@ -4,6 +4,7 @@ import FileBlue from "../../assets/FileBlue.svg";
 import download from "../../assets/download.svg";
 import { useState } from "react";
 import BubbleChart from "../Chart/BubbleChart";
+import RoundChart from "../Chart/RoundChart";
 
 const SearchDetail = ({ results, query }) => {
     //클릭해서 선택한 row저장
@@ -46,7 +47,10 @@ const SearchDetail = ({ results, query }) => {
 
     return (
         <SearchDetailWrap>
-            <BubbleChart />
+            <SearchDetailChartWrap>
+                <RoundChart />
+                <BubbleChart />
+            </SearchDetailChartWrap>
 
             <SearchDetailHead>
                 <LeftWrap>
@@ -193,4 +197,10 @@ const TXTBtn = styled.div`
         width: 18px;
         height: 18px;
     }
+`;
+
+const SearchDetailChartWrap = styled.div`
+    display: flex;
+    gap: 7px;
+    height: 500px;
 `;
