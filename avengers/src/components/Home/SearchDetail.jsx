@@ -1,26 +1,36 @@
 import styled from "styled-components";
 import FileBlue from "../../assets/FileBlue.svg";
-// import wellcome1st from "../../moidata/wellcome1st";
 import download from "../../assets/download.svg";
 import { useState } from "react";
 import BubbleChart from "../Chart/BubbleChart";
 import RoundChart from "../Chart/RoundChart";
 
 const SearchDetail = ({ results, query }) => {
-    //클릭해서 선택한 row저장
+    // 선택된 row 저장
     const [selectedRows, setSelectedRows] = useState([]);
 
-    const toggleRow = (row) => { //행 클릭시 선택/해제
+    // 페이지네이션 상태
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 50;
+
+    // 페이지별 데이터 계산
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentItems = results.slice(startIndex, endIndex);
+
+    const totalPages = Math.ceil(results.length / itemsPerPage);
+
+    // Row 클릭 토글
+    const toggleRow = (row) => {
         const exists = selectedRows.includes(row);
-        if(exists){
+        if (exists) {
             setSelectedRows(selectedRows.filter(r => r !== row));
-        }else {
+        } else {
             setSelectedRows([...selectedRows, row]);
         }
-
     };
 
-    // 4) TXT 다운로드 (선택된 row만)
+    // TXT 다운로드
     const downloadTXT = () => {
         const target = selectedRows.length > 0 ? selectedRows : results;
 
@@ -38,20 +48,15 @@ const SearchDetail = ({ results, query }) => {
         link.click();
     };
 
-
+    // 결과 없을 때
     if (results.length === 0) {
-        return (
-            <NoResultWrap>조건과 일치하는 항목이 없습니다.</NoResultWrap>
-        );
+        return <NoResultWrap>조건과 일치하는 항목이 없습니다.</NoResultWrap>;
     }
 
     return (
         <SearchDetailWrap>
-            <SearchDetailChartWrap>
-                <RoundChart />
-                <BubbleChart />
-            </SearchDetailChartWrap>
 
+            {/* 헤더 */}
             <SearchDetailHead>
                 <LeftWrap>
                     <img src={FileBlue}/>
@@ -66,21 +71,24 @@ const SearchDetail = ({ results, query }) => {
                 </TXTBtn>
             </SearchDetailHead>
 
+            {/* 차트 영역 */}
+            <SearchDetailChartWrap>
+                <RoundChart />
+                <BubbleChart />
+            </SearchDetailChartWrap>
+
+            {/* 테이블 */}
             <TableWrap>
                 <table>
                     <thead>
                         <tr>
                             <th>사용자 ID</th>
-                            {/* <th>성별</th>
-                            <th>출생년도</th>
-                            <th>거주지역</th>
-                            <th>세부 거주지역</th> */}
                             <th>데이터</th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        {results.map((row, idx) => {
+                        {currentItems.map((row, idx) => {
                             const isSelected = selectedRows.includes(row);
 
                             return (
@@ -93,10 +101,6 @@ const SearchDetail = ({ results, query }) => {
                                     }}
                                 >
                                     <td>{row.id}</td>
-                                    {/* <td>{row["성별"]}</td>
-                                    <td>{row["출생년도"]}</td>
-                                    <td>{row["거주지역"]}</td>
-                                    <td>{row["세부 거주지역"]}</td> */}
                                     <td>{row.info_text}</td>
                                 </tr>
                             );
@@ -105,11 +109,32 @@ const SearchDetail = ({ results, query }) => {
                 </table>
             </TableWrap>
 
+            {/* 페이지네이션 */}
+            <PaginationWrap>
+                <button
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => p - 1)}
+                >
+                    이전
+                </button>
+
+                <span>{currentPage} / {totalPages}</span>
+
+                <button
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage((p) => p + 1)}
+                >
+                    다음
+                </button>
+            </PaginationWrap>
+
         </SearchDetailWrap>
     );
 };
 
 export default SearchDetail;
+
+/* ---------------- STYLE ---------------- */
 
 const SearchDetailWrap = styled.div`
     width: 100%;
@@ -122,9 +147,8 @@ const SearchDetailWrap = styled.div`
 const SearchDetailHead = styled.div`
     display: flex;
     align-items: center;
-    justify-content: space-between; /* TXT 버튼 오른쪽 끝 */
+    justify-content: space-between;
     padding: 14px;
-    border-bottom: 1px solid #e5e5e5;
 `;
 
 const LeftWrap = styled.div`
@@ -132,7 +156,7 @@ const LeftWrap = styled.div`
     align-items: center;
     gap: 10px;
 
-    > img{
+    > img {
         background: #DBEAFE;
         padding: 8px;
         width: 32px;
@@ -203,4 +227,31 @@ const SearchDetailChartWrap = styled.div`
     display: flex;
     gap: 7px;
     height: 500px;
+`;
+
+const PaginationWrap = styled.div`
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px;
+
+    button {
+        padding: 6px 12px;
+        background: #00000080;
+        color: #fff;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+
+        &:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+    }
+
+    span {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
 `;

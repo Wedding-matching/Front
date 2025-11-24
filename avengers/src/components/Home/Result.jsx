@@ -1,10 +1,14 @@
 import styled from "styled-components";
+import { useEffect } from "react";
+import turtle from "../../assets/turtle.svg";
 import resultIcon2 from "../../assets/resultIcon2.svg";
 import SearchDetail from "./SearchDetail";
-import { useEffect } from "react";
+import Loading from "./Loading";
 
-const Result = ({ data, query, onCountUpdate }) => {
+
+const Result = ({ data, query, onCountUpdate, isLoading }) => {
     const noData = !data || !Array.isArray(data.result);
+    const total_time = data?.metrics?.total_time || null
 
     useEffect(()=>{
         if(!noData){ //검색 결과 개수는 data.result.length로 업데이트
@@ -15,9 +19,16 @@ const Result = ({ data, query, onCountUpdate }) => {
     return (
         <ResultWrap>
             <ResultTitle><img src={resultIcon2}/>검색 결과</ResultTitle>
+            {!isLoading && total_time &&(
+                <TimeWrap>
+                    <img src ={turtle} />
+                    <TotalTime>{total_time}</TotalTime>
+                </TimeWrap>
+            )}
 
-
-            {noData ? (
+            {isLoading ? (
+                <Loading progress={0}/>
+            ) : noData ? (
                 <ResultDetail>검색된 결과가 없습니다.</ResultDetail>
             ) : (
                 //api에서 받은 result 배열을 searchdetail에 전달
@@ -62,4 +73,13 @@ const ResultDetail = styled.div`
 
     font-size: 20px;
     color: #717182;
+`;
+
+const TimeWrap = styled.div`
+    display: flex;
+    gap: 8px;
+`;
+
+const TotalTime = styled.div`
+    font-size: 8px;
 `;

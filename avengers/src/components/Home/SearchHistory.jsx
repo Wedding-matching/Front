@@ -28,14 +28,15 @@ const getTimeLabel = (timestamp) => {
     return `${month < 10 ? "0" + month : month}.${date < 10 ? "0" + date : date}일`;
 };
 
-const SearchHistory = ({history, onDelete}) => {
+const SearchHistory = ({history, onDelete, onOpenDetail}) => {
     return (
         <SearchHistoryWrap>
             <SH_Title><img src={History} />Search History</SH_Title>
             <SH_Desc>최근 검색 기록</SH_Desc>
 
+            <SH_ListContainer>
             {history.map(item => (
-                <SH_ListWrap key={item.id}>
+                <SH_ListWrap key={item.id} onClick={() => onOpenDetail(item)}>
                     <SH_ListTitleWrap>
                         <img src={HistoryIcon} />
                         {/*검색어*/}
@@ -52,12 +53,17 @@ const SearchHistory = ({history, onDelete}) => {
                             <SH_ListItemCount>{item.count}</SH_ListItemCount>
                         </SH_ListDetailWrap>
 
-                        <SH_ListDelete>
-                            <img src={Delete} onClick={()=>onDelete(item.id)}/>
+                        <SH_ListDelete 
+                            onClick={(e) => {
+                                e.stopPropagation(); // 삭제 클릭 시 모달 뜨지 않게
+                                onDelete(item.id);
+                            }}>
+                            <img src={Delete}/>
                         </SH_ListDelete>
                     </SH_ListItemWrap>
                 </SH_ListWrap>
-                ))}                
+                ))}         
+                </SH_ListContainer>       
         </SearchHistoryWrap>
     );
         
@@ -102,6 +108,10 @@ const SH_Desc = styled.div`
     margin-left: 32.33px;
 `;
 
+const SH_ListContainer = styled.div`
+    height: 450px;
+    overflow-y: auto; //세로 스크롤
+`;
 const SH_ListWrap = styled.div`
     width: 399px;
     height: 66.5px;

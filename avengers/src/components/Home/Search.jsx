@@ -6,7 +6,7 @@ import SearchIcon from "../../assets/SearchIcon.svg";
 import SearchBtnImg from "../../assets/SearchBtn.svg";
 import SearchHistory from "./SearchHistory";
 
-const Search = ({ onSearch }) => {
+const Search = ({ onSearch, setIsLoading, setLoadingProgress }) => {
     const { post } = useAskQuery(); //useAskQuery()를 실행하면 post-> 실제 api 요청 함수, loading-> 요청 중인지, error->에러가 발생했는지 상태를 제공
     const [question, setQuestion] = useState("");
 
@@ -14,17 +14,31 @@ const Search = ({ onSearch }) => {
     const handleSearch = async() => { //버튼 눌렀을 때
         try{ //post()안에 body를 넣어서 호출하면
             //axios.post("/ask", body)형태로 자동 호출됨
+            setIsLoading(true); //로딩 시작 
+            setLoadingProgress(0); //프로그레스바 초기화
+
+            let prog = 0;
+            const interval = setInterval(() => {
+                prog += 2; //0.02초마다 +2%증가
+                setLoadingProgress(Math.min(prog, 90)); //90%까지 증가
+            }, 100); //0.1초마다 반복 실행
+
             const data = await post({
                 query: question, //사용자 질문
                 target_table: "wellcome1st",
             });
             //부모(home)에게 데이터 전달 -> result가 받음
+            clearInterval(interval); //프로그레스바 증가 멈춤
+            setLoadingProgress(100); //100%로 채움
             onSearch(data, question);   //Home에게 검색어 전달
 
             console.log("API 응답 결과:", data);
 
         }catch(err){
             console.log("API 요청 중 오류 :", err);
+        }
+        finally{
+            setIsLoading(false); //로딩 끝
         }
     };
 

@@ -10,12 +10,6 @@ function Router() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-
-        {/*테스트용*/}
-        {/* <Route path="/searchmodal" element={<SearchModal/>}/> */}
-        <Route path="/roundchart" element={<RoundChart />}/>
-        <Route path="/bubble" element={<BubbleChart />} />
-
       </Routes>
     </BrowserRouter>
   )

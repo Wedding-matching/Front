@@ -155,7 +155,7 @@ const BubbleChart = () => {
 export default BubbleChart;
 
 const BubbleChartWrap = styled.div`
-    width: 600px;
+    width: 400px;
     overflow: visible;
     padding-bottom: 8px;
 `;
