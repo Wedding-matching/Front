@@ -1,21 +1,189 @@
 import ReactApexChart from "react-apexcharts";
 import styled from "styled-components";
-import { useState } from "react";
 
-const moidata = [
-    {concept:"남성", x: 1, y: 4.3, z:15}, 
-    {concept: "흡연", x: 5.2, y: 5.2, z: 14}, 
-    {concept: "아이폰", x: 3.7, y: 1.7, z: 10}
-];
+function cleanJsonString(raw) {
+    try {
+        // JSON이지만 중간에 잘린 배열 등이 있어 수리해야 함
+        let fixed = raw
+            .replace(/\,(?=\s*[\]}])/g, "") // 마지막 콤마 제거
+            .replace(/“|”/g, '"')          // 잘못된 따옴표 수정
+            .replace(/'/g, '"');           // 작은따옴표도 큰따옴표로
 
-const BubbleChart = () => {
-    const [state, setState] = useState({
-        series : moidata.map((item) => ({
-            name: item.concept,
-            data: [[item.x, item.y, item.z]], //x / y / z: 버블 크기
-        })),
+        return JSON.parse(fixed);
+    } catch {
+        return {};
+    }
+}
 
-        options : { //차트 설정
+function extractProfile(obj) {
+    /* ✔ 성별 */
+    let gender = null;
+    const g = obj["성별"] || obj["gender"];
+    if (g) {
+        if (String(g).includes("남")) gender = "남성";
+        if (String(g).includes("여")) gender = "여성";
+    }
+
+    /* ✔ 나이 / 연령대 / 출생년도 */
+    let age = null;
+
+    const ageRaw =
+        obj["나이"] ||
+        obj["연령"] ||
+        obj["연령대"] ||
+        obj["출생년도"];
+
+    if (ageRaw) {
+        // "20대", "20대 전반", "2003" 모두 대응
+        const match = String(ageRaw).match(/(\d{2,4})/);
+        if (match) {
+            const num = Number(match[1]);
+            if (num > 1900) {
+                age = new Date().getFullYear() - num; // 출생년도 → 실제 나이 계산
+            } else {
+                age = num;
+            }
+        }
+    }
+
+    // 나이대 구분
+    let ageGroup = null;
+    if (age !== null) {
+        if (age < 20) ageGroup = "10대";
+        else if (age < 30) ageGroup = "20대";
+        else if (age < 40) ageGroup = "30대";
+        else if (age < 50) ageGroup = "40대";
+        else ageGroup = "50대 이상";
+    }
+
+    /* ✔ 주소 */
+    const addrKey = ["주소", "거주지", "지역", "거주지역", "사는곳", "세부 거주지역"]
+        .find(key => obj[key]);
+
+    const address = addrKey ? obj[addrKey] : null;
+
+    return { gender, ageGroup, address };
+}
+
+function analyze(results) {
+    let genderCount = { 남성: 0, 여성: 0 };
+    let ageCount = { "10대":0, "20대":0, "30대":0, "40대":0, "50대 이상":0 };
+    let addressCount = {};
+
+    results.forEach(item => {
+        const parsed = cleanJsonString(item.info_text);
+        const p = extractProfile(parsed);
+
+        if (p.gender) genderCount[p.gender]++;
+        if (p.ageGroup) ageCount[p.ageGroup]++;
+        if (p.address) {
+            if (!addressCount[p.address]) addressCount[p.address] = 0;
+            addressCount[p.address]++;
+        }
+    });
+
+    return { genderCount, ageCount, addressCount };
+}
+
+const BubbleChart = ({ results }) => {
+    const { genderCount, ageCount, addressCount } = analyze(results);
+    const total = results.length;
+
+    const bubbleData = [];
+
+    // 성별 (남성 / 여성)
+    if (genderCount["남성"] > 0) {
+        bubbleData.push({
+            name: "남성",
+            percent: Math.round((genderCount["남성"] / total) * 100),
+            category: "gender"
+        });
+    }
+    if (genderCount["여성"] > 0) {
+        bubbleData.push({
+            name: "여성",
+            percent: Math.round((genderCount["여성"] / total) * 100),
+            category: "gender"
+        });
+    }
+
+    // 나이대 — 상위 8개
+    Object.entries(ageCount)
+        .filter(([_, cnt]) => cnt > 0)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8)
+        .forEach(([ageLabel, cnt]) => {
+            bubbleData.push({
+                name: ageLabel,
+                percent: Math.round((cnt / total) * 100),
+                category: "age"
+            });
+        });
+
+    // 주소 — 상위 8개
+    Object.entries(addressCount)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8)
+        .forEach(([addr, cnt]) => {
+            bubbleData.push({
+                name: addr,
+                percent: Math.round((cnt / total) * 100),
+                category: "address"
+            });
+        });
+        
+    // 그룹 나누기
+    // 카테고리별 그룹
+    const genderList = bubbleData.filter(b => b.category === "gender");
+    const ageList = bubbleData.filter(b => b.category === "age");
+    const addrList = bubbleData.filter(b => b.category === "address");
+
+    // 카테고리별 X 좌표
+    const OFFSET_GENDER = 5;
+    const OFFSET_AGE = 25;
+    const OFFSET_ADDR = 55;
+    // x 간격
+    const GAP = 6;
+
+    // 좌표 부여
+    function assignPosition(list, offsetX) {
+        return list.map((item, idx) => ({
+            ...item,
+            x: offsetX + idx * GAP,
+            y: item.percent/10,
+        }));
+    }
+
+    const positionedData = [
+        ...assignPosition(genderList, OFFSET_GENDER),
+        ...assignPosition(ageList, OFFSET_AGE),
+        ...assignPosition(addrList, OFFSET_ADDR),
+    ];
+
+    const categoryColors = {
+        gender: { r: 54,  g: 125, b: 255 },  // 파랑
+        age:    { r: 52,  g: 168, b: 83 },   // 초록
+        address:{ r: 255, g: 159, b: 28 },   // 주황
+    }
+
+    function getBubbleColor(category, percent) {
+        const base = categoryColors[category];
+        const intensity = 0.2 + (percent/100)*0.8; // 밝기 0.2~1.0
+        return `rgba(${base.r}, ${base.g}, ${base.b}, ${intensity})`;
+    }
+
+    const series = [{
+    name: "panel-data",
+    data: positionedData.map(item => ({
+        x: item.x,
+        y: item.y,
+        z: item.percent,   // 퍼센트 기반 버블 크기
+        name: item.name,
+        fillColor: getBubbleColor(item.category, item.percent),
+    }))
+}];
+
+        const options = { //차트 설정
             chart: { //차트 종류, 크기 등
                 height: 430,
                 type: "bubble",
@@ -45,15 +213,9 @@ const BubbleChart = () => {
             },
             dataLabels: { //데이터 라벨(숫자, 이름 등)
                 enabled: true,
-                formatter: (val, { seriesIndex, dataPointIndex, w }) => {
-                    const seriesName = w.config.series[seriesIndex].name;
-                    const data = w.config.series[seriesIndex].data[dataPointIndex];
-                    if(data && data.length === 3){
-                        const size = data[2];
-                        return `${seriesName}\n(${size}%)`;
-                    }
-                    return ``;
-                    
+                formatter: (_, opts) => {
+                    const d = opts.w.config.series[0].data[opts.dataPointIndex];
+                    return `${d.name}\n(${d.z}%)`;                    
                 },
                 style: {
                     fontSize: "10px",
@@ -68,21 +230,23 @@ const BubbleChart = () => {
                     
             },
             fill: { //버블 투명도
-                opacity: 0.9,
+                opacity: 1,
             },
             markers: {size:0, strokeWidth: 0,}, //흰색 테두리 없애기
             plotOptions: { //버블 크기
                 bubble: {
-                    minBubbleRadius: 15,//최소 버블 반지름
-                    maxBubbleRadius: 70, // 최대 버블 반지름
                     zScaling: true, //z값에 따라 비율 조정
+                    zMin: 0,
+                    zMax: 100,
+                    minBubbleRadius: 40,//최소 버블 반지름
+                    maxBubbleRadius: 120, // 최대 버블 반지름
                 },
             },
             xaxis: { //x축 설정
                 tickAmount: 15, //눈금 15개
                 type: "numeric",
-                min: 0,
-                max: 7,
+                min: -1,
+                max: OFFSET_ADDR + 50,
                 stepSize: 0.5,
                 title: {
                     text: "",
@@ -91,7 +255,7 @@ const BubbleChart = () => {
             },
             yaxis: { //y축 설정
                 min: -1,
-                max: 7,
+                max: 6,
                 stepSize: 0.5,
                 tickAmount: 16,
                 labels: {
@@ -123,29 +287,32 @@ const BubbleChart = () => {
                 type: "gradient",
                 gradient: {
                     shade: "dark",
-                    shadeIntensity: 0.4,
                     type: "radial",
-                    gradientToColors: undefined,
-                    inverseColors: true,
-                    stops: [0, 60, 100],
+                    shadeIntensity: 0.95,
+                    gradientToColors: ["#ffffff"], // 중앙 반사광 느낌
+                    inverseColors: false,
+                    opacityFrom: 1,
+                    opacityTo: 0.4,
+                    stops: [0, 25, 60, 100],
                 },
             },
+
             dropShadow: {
                 enabled: true,
-                blur: 6,
-                opacity: 0.3,
-                color: "#000",
-                left: 2,
-                top: 2,
+                top: 10,
+                left: 6,
+                blur: 18,
+                color: "rgba(0, 0, 0, 0.75)",
+                opacity: 0.75,
             },
-        },
-    });
+
+        };
 
         return (
             <BubbleChartWrap>
                 <ReactApexChart 
-                options={state.options} 
-                series={state.series} 
+                options={options} 
+                series={series} 
                 type="bubble" 
                 height={430} />
             </BubbleChartWrap>
@@ -155,7 +322,7 @@ const BubbleChart = () => {
 export default BubbleChart;
 
 const BubbleChartWrap = styled.div`
-    width: 400px;
+    width: 100%;
     overflow: visible;
     padding-bottom: 8px;
 `;

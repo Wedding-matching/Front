@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useEffect } from "react";
 import turtle from "../../assets/turtle.svg";
-import resultIcon2 from "../../assets/resultIcon2.svg";
+import resultIcon from "../../assets/resultIcon.svg";
 import SearchDetail from "./SearchDetail";
 import Loading from "./Loading";
 
@@ -18,13 +18,15 @@ const Result = ({ data, query, onCountUpdate, isLoading }) => {
 
     return (
         <ResultWrap>
-            <ResultTitle><img src={resultIcon2}/>검색 결과</ResultTitle>
-            {!isLoading && total_time &&(
-                <TimeWrap>
-                    <img src ={turtle} />
-                    <TotalTime>{total_time}</TotalTime>
-                </TimeWrap>
-            )}
+            <ResultTitleWrap>
+                <ResultTitle><img src={resultIcon}/>검색 결과</ResultTitle>
+                {!isLoading && total_time &&(
+                    <TimeWrap>
+                        <img src ={turtle} style={{width: "20px", height: "20px"}}/>
+                        <TotalTime>{total_time}</TotalTime>
+                    </TimeWrap>
+                )}
+            </ResultTitleWrap>
 
             {isLoading ? (
                 <Loading progress={0}/>
@@ -46,6 +48,13 @@ const ResultWrap = styled.div`
     background: #FFFFFF;
     border-radius: 14px;
     min-height: 568px;
+`;
+
+const ResultTitleWrap = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
 `;
 
 const ResultTitle = styled.div`
@@ -78,8 +87,13 @@ const ResultDetail = styled.div`
 const TimeWrap = styled.div`
     display: flex;
     gap: 8px;
+    align-items: center;
+    background: #EFF6FF;
+    padding: 4px 8px;
+    border-radius: 8px;
 `;
 
 const TotalTime = styled.div`
-    font-size: 8px;
+    font-size: 10px;
+    fontp-weight: 600;
 `;

@@ -73,8 +73,7 @@ const SearchDetail = ({ results, query }) => {
 
             {/* 차트 영역 */}
             <SearchDetailChartWrap>
-                <RoundChart />
-                <BubbleChart />
+                <BubbleChart results={results}/>
             </SearchDetailChartWrap>
 
             {/* 테이블 */}
@@ -224,6 +223,10 @@ const TXTBtn = styled.div`
 `;
 
 const SearchDetailChartWrap = styled.div`
+    width: 100%;
+    overflow: visible;
+    justify-content: center;
+    align-items: center;
     display: flex;
     gap: 7px;
     height: 500px;
