@@ -29,6 +29,23 @@ const SearchDetail = ({ results, query }) => {
         }
     };
 
+    const isPageAllSelected = currentItems.length > 0 
+    && currentItems.every(row => selectedRows.includes(row));
+
+const toggleSelectAllPage = () => {
+    if (isPageAllSelected) {
+        // 전체 해제
+        setSelectedRows(prev => prev.filter(r => !currentItems.includes(r)));
+    } else {
+        // 전체 선택
+        const newList = [...selectedRows];
+        currentItems.forEach(row => {
+            if (!newList.includes(row)) newList.push(row);
+        });
+        setSelectedRows(newList);
+    }
+};
+
     // TXT 다운로드
     const downloadTXT = () => {
         const target = selectedRows.length > 0 ? selectedRows : results;
@@ -65,9 +82,16 @@ const SearchDetail = ({ results, query }) => {
                     </SD_H_Detail>
                 </LeftWrap>
 
-                <TXTBtn onClick={downloadTXT}>
-                    <img src={download}/>TXT 다운로드
-                </TXTBtn>
+                <BtnWrap>
+                    <SelectAllBtn 
+                        $active={isPageAllSelected}
+                        onClick={toggleSelectAllPage}>
+                        {isPageAllSelected ? "전체 해제" : "전체 선택"}
+                    </SelectAllBtn>
+                    <TXTBtn onClick={downloadTXT}>
+                        <img src={download}/>TXT 다운로드
+                    </TXTBtn>
+                </BtnWrap>
             </SearchDetailHead>
 
             {/* 차트 영역 */}
@@ -205,6 +229,22 @@ const NoResultWrap = styled.div`
     color: #717182;
     font-size: 18px;
 `;
+const BtnWrap = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 10px;
+`;
+
+const SelectAllBtn = styled.div`
+    background: ${props => props.$active ? "#cfcbcbff" : "#00000080"};
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: 0.15s;
+`
 
 const TXTBtn = styled.div`
     display: flex;
