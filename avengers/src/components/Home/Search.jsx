@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { useState } from "react";
-import { useAskQuery } from "../../api/search";
+import { useAskQuery } from "../../api/ask";
 
 import SearchIcon from "../../assets/SearchIcon.svg";
 import SearchBtnImg from "../../assets/SearchBtn.svg";
