@@ -15,7 +15,7 @@ const Loading = () => {
     }, []);
 
     // X 위치 계산
-    const xPos = (barWidth * (progress*0.3)) / 100;
+    const xPos = (barWidth * (progress)) / 100;
 
     return (
         <LoadingWrap>
