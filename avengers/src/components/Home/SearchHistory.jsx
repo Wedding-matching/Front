@@ -25,7 +25,7 @@ const getTimeLabel = (timestamp) => {
     const month = past.getMonth() + 1;
     const date = past.getDate();
 
-    return `${month < 10 ? "0" + month : month}.${date < 10 ? "0" + date : date}일`;
+    return `${month < 10 ? "0" + month : month}.${date < 10 ? "0" + date : date}`;
 };
 
 const SearchHistory = ({history, onDelete, onOpenDetail}) => {

@@ -60,11 +60,11 @@ const Search = ({ onSearch, setIsLoading, setLoadingProgress }) => {
             </SearchInputWrap>
 
             <SearchExWrap>
-                <SearchEx onClick={() => setQuestion("서울에 사는 남성")}>서울에 사는 남성</SearchEx>
-                <SearchEx onClick={() => setQuestion("2000년생 서울 거주자")}>2000년생 서울 거주자</SearchEx>
-                <SearchEx onClick={() => setQuestion("20대 흡연자")}>20대 흡연자</SearchEx>
-                <SearchEx onClick={() => setQuestion("차량을 보유한 여성")}>차량을 보유한 여성</SearchEx>
-                <SearchEx onClick={() => setQuestion("kt 이용자")}>kt 이용자</SearchEx>
+                <SearchEx onClick={() => setQuestion("서울 20대 남자 100명")}>서울 20대 남자 100명</SearchEx>
+                <SearchEx onClick={() => setQuestion("경기 30~40대 남자 술을 먹은 사람 50명")}>경기 30~40대 남자 술을 먹은 사람 50명</SearchEx>
+                <SearchEx onClick={() => setQuestion("서울, 경기 OTT 이용하는 젊은층 30명")}>서울, 경기 OTT 이용하는 젊은층 30명</SearchEx>
+                <SearchEx onClick={() => setQuestion("경기도에 살고 기혼이며 자녀가 있고 월 가구소득 800만원 이상인 사람 30명")}>경기도에 살고 기혼이며 자녀가 있고 월 가구소득 800만원 이상인 사람 30명</SearchEx>
+                <SearchEx onClick={() => setQuestion("월 개인소득 300만원 이상인 직장인 45명")}>월 개인소득 300만원 이상인 직장인 45명</SearchEx>
                 <SearchEx onClick={() => setQuestion("고등학교 이하 학력 중 핸드폰이 아이폰인 사람")}>고등학교 이하 학력 중 핸드폰이 아이폰인 사람</SearchEx>
             </SearchExWrap>
 
