@@ -15,8 +15,7 @@ const usePost = (url) =>{
         ? { headers: { "Content-Type": undefined } }
         : {};
 
-      const response = await API.post(url, body, config);
-      return response.data;
+      const response = await API.post(`/api${url}`, body, config);      return response.data;
     } catch (err) {
       setError(err);
       //console.log(err.response.data.code);
