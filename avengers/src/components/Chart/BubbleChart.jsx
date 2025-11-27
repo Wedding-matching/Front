@@ -3,28 +3,31 @@ import styled from "styled-components";
 
 function cleanJsonString(raw) {
     try {
-        // JSON이지만 중간에 잘린 배열 등이 있어 수리해야 함
-        let fixed = raw
-            .replace(/\,(?=\s*[\]}])/g, "") // 마지막 콤마 제거
-            .replace(/“|”/g, '"')          // 잘못된 따옴표 수정
-            .replace(/'/g, '"');           // 작은따옴표도 큰따옴표로
-
-        return JSON.parse(fixed);
-    } catch {
-        return {};
+        return JSON.parse(raw);   // ← 원본 JSON은 깨끗하므로 그대로 파싱
+    } catch (e) {
+        console.warn("JSON 파싱 실패:", raw);
+        return {};                // 반환값은 항상 객체
     }
 }
 
 function extractProfile(obj) {
-    /* ✔ 성별 */
+    /* 성별 */
     let gender = null;
     const g = obj["성별"] || obj["gender"];
-    if (g) {
-        if (String(g).includes("남")) gender = "남성";
-        if (String(g).includes("여")) gender = "여성";
+
+if (g) {
+    const value = String(g).trim();
+
+    if (value === "남" || value === "남성" || value === "남자") {
+        gender = "남성";
     }
 
-    /* ✔ 나이 / 연령대 / 출생년도 */
+    if (value === "여" || value === "여성" || value === "여자") {
+        gender = "여성";
+    }
+}
+
+    /* 나이 / 연령대 / 출생년도 */
     let age = null;
 
     const ageRaw =
@@ -53,7 +56,9 @@ function extractProfile(obj) {
         else if (age < 30) ageGroup = "20대";
         else if (age < 40) ageGroup = "30대";
         else if (age < 50) ageGroup = "40대";
-        else ageGroup = "50대 이상";
+        else if (age < 60) ageGroup = "50대";
+        else if (age < 70) ageGroup = "70대"
+        else ageGroup = "80대 이상";
     }
 
     /* ✔ 주소 */
@@ -67,11 +72,12 @@ function extractProfile(obj) {
 
 function analyze(results) {
     let genderCount = { 남성: 0, 여성: 0 };
-    let ageCount = { "10대":0, "20대":0, "30대":0, "40대":0, "50대 이상":0 };
+    let ageCount = { "10대":0, "20대":0, "30대":0, "40대":0, "50대":0, "60대":0, "70대":0, "80대 이상": 0 };
     let addressCount = {};
 
     results.forEach(item => {
         const parsed = cleanJsonString(item.info_text);
+        console.log("parsed -> ", parsed);
         const p = extractProfile(parsed);
 
         if (p.gender) genderCount[p.gender]++;
@@ -81,7 +87,7 @@ function analyze(results) {
             addressCount[p.address]++;
         }
     });
-
+    
     return { genderCount, ageCount, addressCount };
 }
 
@@ -92,26 +98,20 @@ const BubbleChart = ({ results }) => {
     const bubbleData = [];
 
     // 성별 (남성 / 여성)
-    if (genderCount["남성"] > 0) {
+    // 성별은 0명이더라도 항상 생성
+    ["남성", "여성"].forEach(g => {
         bubbleData.push({
-            name: "남성",
-            percent: Math.round((genderCount["남성"] / total) * 100),
+            name: g,
+            percent: Math.round((genderCount[g] / total) * 100) || 0,
             category: "gender"
         });
-    }
-    if (genderCount["여성"] > 0) {
-        bubbleData.push({
-            name: "여성",
-            percent: Math.round((genderCount["여성"] / total) * 100),
-            category: "gender"
-        });
-    }
+    });
 
-    // 나이대 — 상위 8개
+    // 나이대 — 상위 4개
     Object.entries(ageCount)
         .filter(([_, cnt]) => cnt > 0)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 8)
+        .slice(0, 4)
         .forEach(([ageLabel, cnt]) => {
             bubbleData.push({
                 name: ageLabel,
@@ -138,26 +138,35 @@ const BubbleChart = ({ results }) => {
     const ageList = bubbleData.filter(b => b.category === "age");
     const addrList = bubbleData.filter(b => b.category === "address");
 
-    // 카테고리별 X 좌표
-    const OFFSET_GENDER = 5;
-    const OFFSET_AGE = 25;
-    const OFFSET_ADDR = 55;
-    // x 간격
-    const GAP = 6;
+    const GROUPS = {
+        gender: {start: 0, end: 30},
+        age: {start: 35, end: 65},
+        address: {start: 70, end: 100}
+    };
+
+    const BASE_Y = {
+        gender: 0.5,
+        age: 3,
+        address: 1.8,
+    };
 
     // 좌표 부여
-    function assignPosition(list, offsetX) {
+    function assignPosition(list, category) {
+        const area = GROUPS[category];
+        const count = list.length;
+        const gap = (area.end - area.start) / (count+1);
+
         return list.map((item, idx) => ({
-            ...item,
-            x: offsetX + idx * GAP,
-            y: item.percent/10,
-        }));
-    }
+                ...item,
+                x: area.start + gap * (idx + 1),
+                y: BASE_Y[category] + item.percent/40, // percent에 따라 아주 조금만 변동
+            }));
+}
 
     const positionedData = [
-        ...assignPosition(genderList, OFFSET_GENDER),
-        ...assignPosition(ageList, OFFSET_AGE),
-        ...assignPosition(addrList, OFFSET_ADDR),
+        ...assignPosition(genderList, "gender"),
+        ...assignPosition(ageList, "age"),
+        ...assignPosition(addrList, "address"),
     ];
 
     const categoryColors = {
@@ -168,8 +177,8 @@ const BubbleChart = ({ results }) => {
 
     function getBubbleColor(category, percent) {
         const base = categoryColors[category];
-        const intensity = 0.2 + (percent/100)*0.8; // 밝기 0.2~1.0
-        return `rgba(${base.r}, ${base.g}, ${base.b}, ${intensity})`;
+        const alpha = 0.3 + (percent/100)*0.7; // 밝기 0.2~1.0
+        return `rgba(${base.r}, ${base.g}, ${base.b}, ${alpha})`;
     }
 
     const series = [{
@@ -243,27 +252,21 @@ const BubbleChart = ({ results }) => {
                 },
             },
             xaxis: { //x축 설정
-                tickAmount: 15, //눈금 15개
-                type: "numeric",
-                min: -1,
-                max: OFFSET_ADDR + 50,
-                stepSize: 0.5,
-                title: {
-                    text: "",
-                },
+                // tickAmount: 15, //눈금 15개
+                // type: "numeric",
+                min: 0,
+                max: 100,
+                // stepSize: 0.5,
                 labels: {show: false},
             },
             yaxis: { //y축 설정
                 min: -1,
                 max: 6,
-                stepSize: 0.5,
-                tickAmount: 16,
+                // stepSize: 0.5,
+                // tickAmount: 16,
                 labels: {
                     formatter: (value) => (Number.isInteger(value) ? value : ""),
                     style: {colors:["#838080ff"] }
-                },
-                title: { 
-                    text: "",
                 },
                 
             },
@@ -282,20 +285,19 @@ const BubbleChart = ({ results }) => {
                 show: false
             },
 
-            //버블 입체
-            fill: {
-                type: "gradient",
-                gradient: {
-                    shade: "dark",
-                    type: "radial",
-                    shadeIntensity: 0.95,
-                    gradientToColors: ["#ffffff"], // 중앙 반사광 느낌
-                    inverseColors: false,
-                    opacityFrom: 1,
-                    opacityTo: 0.4,
-                    stops: [0, 25, 60, 100],
-                },
-            },
+            // //버블 입체
+            // fill: {
+            //     type: "gradient",
+            //     gradient: {
+            //         shade: "dark",
+            //         type: "radial",
+            //         shadeIntensity: 0.95,
+            //         gradientToColors: ["#ffffff"], // 중앙 반사광 느낌
+            //         inverseColors: false,
+            //         opacityFrom: 1,
+            //         opacityTo: 0.4,
+            //         stops: [0, 25, 60, 100],
+            //     },},
 
             dropShadow: {
                 enabled: true,

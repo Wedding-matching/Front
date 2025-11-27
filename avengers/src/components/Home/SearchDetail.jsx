@@ -3,7 +3,6 @@ import FileBlue from "../../assets/FileBlue.svg";
 import download from "../../assets/download.svg";
 import { useState } from "react";
 import BubbleChart from "../Chart/BubbleChart";
-import RoundChart from "../Chart/RoundChart";
 
 const SearchDetail = ({ results, query }) => {
     // 선택된 row 저장
