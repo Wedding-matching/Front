@@ -130,8 +130,8 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalBox = styled.div`
-    width: 900px;
-    height: 700px;
+    width: 1500px;
+    height: 900px;
     background: #fff;
     border-radius: 12px;
     overflow-y: auto;
